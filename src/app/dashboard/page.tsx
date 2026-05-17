@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import WorkoutLogger from "@/components/WorkoutLogger";
+import DashboardTabs from "@/components/DashboardTabs";
+import type { CoachAnalysis } from "@/types/coach";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -11,12 +12,28 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/auth/login");
 
-  const { data: sessions } = await supabase
-    .from("workout_sessions")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("date", { ascending: false })
-    .limit(20);
+  const [{ data: sessions }, { data: coachRow }] = await Promise.all([
+    supabase
+      .from("workout_sessions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("date", { ascending: false })
+      .limit(20),
+    supabase
+      .from("coach_analyses")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const coachAnalysis: CoachAnalysis | null = coachRow
+    ? {
+        neglectedMuscleGroups: coachRow.neglected_muscle_groups,
+        nextSession: coachRow.next_session,
+        trendObservation: coachRow.trend_observation,
+        generatedAt: coachRow.generated_at,
+      }
+    : null;
 
   return (
     <main className="min-h-screen bg-background">
@@ -27,7 +44,10 @@ export default async function DashboardPage() {
             <p className="text-muted-foreground text-sm mt-1">{user.email}</p>
           </div>
         </div>
-        <WorkoutLogger initialSessions={sessions ?? []} />
+        <DashboardTabs
+          initialSessions={sessions ?? []}
+          initialCoachAnalysis={coachAnalysis}
+        />
       </div>
     </main>
   );
