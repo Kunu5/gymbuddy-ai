@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +21,26 @@ export default function WorkoutLogger({ initialSessions, onCoachUpdate }: Props)
   const [error, setError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<WorkoutSession[]>(initialSessions);
   const [isListening, setIsListening] = useState(false);
+  const [filterGroup, setFilterGroup] = useState<string | null>(null);
   const recognitionRef = useRef<unknown>(null);
+
+  // Collect all unique muscle groups from session history
+  const allGroups = Array.from(new Set(
+    sessions.flatMap((s) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const raw = s as any;
+      return (raw.muscle_groups ?? raw.muscleGroups ?? []) as string[];
+    })
+  )).sort();
+
+  const displayed = filterGroup
+    ? sessions.filter((s) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const raw = s as any;
+        const groups: string[] = raw.muscle_groups ?? raw.muscleGroups ?? [];
+        return groups.includes(filterGroup);
+      })
+    : sessions;
 
   function toggleVoice() {
     if (isListening) {
@@ -85,6 +104,13 @@ export default function WorkoutLogger({ initialSessions, onCoachUpdate }: Props)
     }
   }
 
+  async function handleDelete(id: string) {
+    const res = await fetch(`/api/workouts/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -122,39 +148,85 @@ export default function WorkoutLogger({ initialSessions, onCoachUpdate }: Props)
 
       {sessions.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Recent Workouts</h2>
-          {sessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
-          ))}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-xl font-semibold">Recent Workouts</h2>
+            {allGroups.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {allGroups.map((g) => (
+                  <button key={g} onClick={() => setFilterGroup(filterGroup === g ? null : g)}>
+                    <Badge variant={filterGroup === g ? "default" : "outline"} className="text-xs cursor-pointer">
+                      {g}
+                    </Badge>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {displayed.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No sessions match that filter.</p>
+          ) : (
+            displayed.map((session) => (
+              <SessionCard key={session.id} session={session} onDelete={handleDelete} />
+            ))
+          )}
         </div>
       )}
     </div>
   );
 }
 
-function SessionCard({ session }: { session: WorkoutSession }) {
-  // Supabase returns snake_case columns; handle both shapes
+function formatDuration(seconds: number): string {
+  if (seconds >= 60) return `${Math.round(seconds / 60)}min`;
+  return `${seconds}s`;
+}
+
+function SessionCard({
+  session,
+  onDelete,
+}: {
+  session: WorkoutSession;
+  onDelete: (id: string) => void;
+}) {
+  const [deleting, setDeleting] = useState(false);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const s = session as any;
   const muscleGroups: string[] = s.muscleGroups ?? s.muscle_groups ?? [];
   const exercises: WorkoutSession["exercises"] = s.exercises ?? [];
   const durationMinutes: number | undefined = s.durationMinutes ?? s.duration_minutes;
 
+  async function handleDelete() {
+    setDeleting(true);
+    await onDelete(session.id);
+    setDeleting(false);
+  }
+
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base">{session.title}</CardTitle>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {session.date}
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-1 pt-1">
-          {muscleGroups.map((mg) => (
-            <Badge key={mg} variant="secondary" className="text-xs">
-              {mg}
-            </Badge>
-          ))}
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-base">{session.title}</CardTitle>
+            <div className="flex flex-wrap gap-1 pt-1">
+              {muscleGroups.map((mg) => (
+                <Badge key={mg} variant="secondary" className="text-xs">
+                  {mg}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs text-muted-foreground">{session.date}</span>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="text-muted-foreground hover:text-destructive transition-colors p-0.5"
+              title="Delete workout"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -166,7 +238,7 @@ function SessionCard({ session }: { session: WorkoutSession }) {
               {[
                 ex.sets && ex.reps && `${ex.sets}×${ex.reps}`,
                 ex.weight && `${ex.weight}${ex.weightUnit ?? ""}`,
-                ex.duration && `${ex.duration}s`,
+                ex.duration && formatDuration(ex.duration),
                 ex.distance && `${ex.distance}${ex.distanceUnit ?? ""}`,
               ]
                 .filter(Boolean)

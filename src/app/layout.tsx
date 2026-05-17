@@ -16,6 +16,13 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "GymBuddy AI",
   description: "Log workouts with natural language, structured by AI",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "GymBuddy AI",
+  },
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
