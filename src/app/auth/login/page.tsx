@@ -11,12 +11,24 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (forgotMode) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+      setLoading(false);
+      if (error) setError(error.message);
+      else setResetSent(true);
+      return;
+    }
 
     const { error } = isSignUp
       ? await supabase.auth.signUp({ email, password })
@@ -68,111 +80,162 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Tab toggle */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "1fr 1fr",
-        background: "#1A1916", border: "1px solid #2a2826",
-        borderRadius: 12, padding: 4, marginBottom: 14,
-      }}>
-        <button
-          type="button"
-          onClick={() => { setIsSignUp(true); setError(null); }}
-          style={{
-            padding: "9px 0", textAlign: "center",
-            background: isSignUp ? "#E8622A" : "transparent",
-            color: isSignUp ? "#110" : "#aaa69e",
-            borderRadius: 9, border: "none",
-            fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, cursor: "pointer",
-          }}
-        >Sign up</button>
-        <button
-          type="button"
-          onClick={() => { setIsSignUp(false); setError(null); }}
-          style={{
-            padding: "9px 0", textAlign: "center",
-            background: !isSignUp ? "#E8622A" : "transparent",
-            color: !isSignUp ? "#110" : "#aaa69e",
-            borderRadius: 9, border: "none",
-            fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, cursor: "pointer",
-          }}
-        >Log in</button>
-      </div>
-
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {/* Email */}
-        <div style={inputStyle}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#6B6862", letterSpacing: "0.16em", textTransform: "uppercase" as const }}>
-            Email
-          </div>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="you@example.com"
-            style={{
-              background: "transparent", border: "none", outline: "none",
-              color: "#FAFAF8", fontSize: 14, fontWeight: 500,
-              fontFamily: "var(--font-sans)", padding: 0,
-            }}
-          />
-        </div>
-
-        {/* Password */}
-        <div style={{ ...inputStyle, position: "relative" }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#6B6862", letterSpacing: "0.16em", textTransform: "uppercase" as const }}>
-            Password
-          </div>
-          <input
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="••••••••••"
-            style={{
-              background: "transparent", border: "none", outline: "none",
-              color: "#FAFAF8", fontSize: 14, fontWeight: 500,
-              fontFamily: "var(--font-sans)", padding: 0, paddingRight: 28,
-            }}
-          />
+      {/* Tab toggle — hidden in forgot mode */}
+      {!forgotMode && (
+        <div style={{
+          display: "grid", gridTemplateColumns: "1fr 1fr",
+          background: "#1A1916", border: "1px solid #2a2826",
+          borderRadius: 12, padding: 4, marginBottom: 14,
+        }}>
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => { setIsSignUp(true); setError(null); }}
             style={{
-              position: "absolute", right: 14, bottom: 10,
-              background: "none", border: "none", color: "#6B6862", cursor: "pointer",
-              display: "grid", placeItems: "center", padding: 0,
+              padding: "9px 0", textAlign: "center",
+              background: isSignUp ? "#E8622A" : "transparent",
+              color: isSignUp ? "#110" : "#aaa69e",
+              borderRadius: 9, border: "none",
+              fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            }}
+          >Sign up</button>
+          <button
+            type="button"
+            onClick={() => { setIsSignUp(false); setError(null); }}
+            style={{
+              padding: "9px 0", textAlign: "center",
+              background: !isSignUp ? "#E8622A" : "transparent",
+              color: !isSignUp ? "#110" : "#aaa69e",
+              borderRadius: 9, border: "none",
+              fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            }}
+          >Log in</button>
+        </div>
+      )}
+
+      {/* Forgot password — success state */}
+      {forgotMode && resetSent ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ background: "#1A1916", border: "1px solid #2a2826", borderRadius: 12, padding: "18px 16px" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#6B6862", letterSpacing: "0.16em", textTransform: "uppercase" as const, marginBottom: 8 }}>Check your inbox</div>
+            <div style={{ fontSize: 14, color: "#FAFAF8", lineHeight: 1.5 }}>
+              We sent a reset link to <strong>{email}</strong>. Tap it to set a new password.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setForgotMode(false); setResetSent(false); setError(null); }}
+            style={{
+              padding: "14px 16px", background: "#E8622A", color: "#110", border: "none", borderRadius: 12,
+              fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, cursor: "pointer",
+            }}
+          >Back to log in</button>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {forgotMode && (
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#6B6862", letterSpacing: "0.16em", textTransform: "uppercase" as const, marginBottom: 4 }}>
+              Reset password
+            </div>
+          )}
+
+          {/* Email */}
+          <div style={inputStyle}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#6B6862", letterSpacing: "0.16em", textTransform: "uppercase" as const }}>
+              Email
+            </div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="you@example.com"
+              style={{
+                background: "transparent", border: "none", outline: "none",
+                color: "#FAFAF8", fontSize: 14, fontWeight: 500,
+                fontFamily: "var(--font-sans)", padding: 0,
+              }}
+            />
+          </div>
+
+          {/* Password — hidden in forgot mode */}
+          {!forgotMode && (
+            <div style={{ ...inputStyle, position: "relative" }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "#6B6862", letterSpacing: "0.16em", textTransform: "uppercase" as const }}>
+                Password
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••••"
+                style={{
+                  background: "transparent", border: "none", outline: "none",
+                  color: "#FAFAF8", fontSize: 14, fontWeight: 500,
+                  fontFamily: "var(--font-sans)", padding: 0, paddingRight: 28,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute", right: 14, bottom: 10,
+                  background: "none", border: "none", color: "#6B6862", cursor: "pointer",
+                  display: "grid", placeItems: "center", padding: 0,
+                }}
+              >
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          )}
+
+          {/* Forgot password link — only on login tab */}
+          {!isSignUp && !forgotMode && (
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => { setForgotMode(true); setError(null); }}
+                style={{
+                  background: "none", border: "none", padding: 0,
+                  fontSize: 11, color: "#6B6862", cursor: "pointer",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >Forgot password?</button>
+            </div>
+          )}
+
+          {error && (
+            <p style={{ fontSize: 13, color: "oklch(0.70 0.21 25)", fontFamily: "var(--font-mono)", margin: 0 }}>{error}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: 6, padding: "14px 16px",
+              background: loading ? "rgba(232,98,42,0.5)" : "#E8622A",
+              color: "#110", border: "none", borderRadius: 12,
+              fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+            {loading ? "Loading…" : forgotMode ? <>Send reset link <span style={{ fontSize: 16 }}>→</span></> : isSignUp ? <>Create account <span style={{ fontSize: 16 }}>→</span></> : <>Sign in <span style={{ fontSize: 16 }}>→</span></>}
           </button>
-        </div>
 
-        {!isSignUp && (
-          <div style={{ fontSize: 11, color: "#6B6862", lineHeight: 1.4 }}>
-            At least 8 characters.
-          </div>
-        )}
-
-        {error && (
-          <p style={{ fontSize: 13, color: "oklch(0.70 0.21 25)", fontFamily: "var(--font-mono)", margin: 0 }}>{error}</p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            marginTop: 6, padding: "14px 16px",
-            background: loading ? "rgba(232,98,42,0.5)" : "#E8622A",
-            color: "#110", border: "none", borderRadius: 12,
-            fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700,
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-        >
-          {loading ? "Loading…" : isSignUp ? <>Create account <span style={{ fontSize: 16 }}>→</span></> : <>Sign in <span style={{ fontSize: 16 }}>→</span></>}
-        </button>
-      </form>
+          {forgotMode && (
+            <button
+              type="button"
+              onClick={() => { setForgotMode(false); setError(null); }}
+              style={{
+                background: "none", border: "none", padding: 0,
+                fontSize: 12, color: "#6B6862", cursor: "pointer",
+                fontFamily: "var(--font-sans)", textAlign: "center",
+              }}
+            >← Back to log in</button>
+          )}
+        </form>
+      )}
 
       {/* Divider */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "20px 0" }}>
