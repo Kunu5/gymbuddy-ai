@@ -4,57 +4,51 @@
 
 @layer base {
   :root {
-    /* Fonts (Next.js localFont variables applied on <body>) */
-    --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
-    --font-mono: var(--font-geist-mono, ui-monospace, Menlo, monospace);
+    /* Fit Betta Design System */
+    --font-sans: var(--font-plus-jakarta-sans, -apple-system, system-ui, sans-serif);
+    --font-mono: var(--font-jetbrains-mono, ui-monospace, Menlo, monospace);
 
     /* Surfaces */
-    --background:   oklch(0.135 0.006 270);
-    --surface-1:    oklch(0.175 0.008 270);
-    --surface-2:    oklch(0.215 0.009 270);
-    --card:         oklch(0.175 0.008 270);
-    --card-foreground: oklch(0.985 0 0);
-    --popover:      oklch(0.195 0.008 270);
-    --popover-foreground: oklch(0.985 0 0);
+    --background:   #111110;
+    --bg-2:         #0a0a09;
+    --card:         #1A1916;
+    --card-hi:      #221f1b;
+    --rule:         #2a2826;
+    --card-foreground: #FAFAF8;
+    --popover:      #1A1916;
+    --popover-foreground: #FAFAF8;
 
     /* Text */
-    --foreground:        oklch(0.985 0 0);
-    --muted-foreground:  oklch(0.66 0.012 270);
-    --subtle-foreground: oklch(0.48 0.012 270);
+    --foreground:        #FAFAF8;
+    --muted-foreground:  #6B6862;
+    --subtle-foreground: #3f3d39;
 
-    /* Primary — volt / electric lime */
-    --primary:            oklch(0.92 0.22 122);
-    --primary-foreground: oklch(0.16 0 0);
-    --primary-soft:       oklch(0.92 0.22 122 / 0.12);
-    --primary-glow:       oklch(0.92 0.22 122 / 0.35);
+    /* Primary — amber */
+    --primary:            #E8622A;
+    --primary-foreground: #110;
+    --primary-soft:       rgba(232, 98, 42, 0.10);
+    --primary-glow:       rgba(232, 98, 42, 0.35);
+    --amber-dim:          #b54c1f;
+    --amber-soft:         #f4a47a;
+    --amber-warn:         #E8A02A;
 
     /* Secondary / muted / accent */
-    --secondary:            oklch(0.255 0.009 270);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted:                oklch(0.235 0.008 270);
-    --muted-2:              oklch(0.275 0.009 270);
-    --accent:               oklch(0.255 0.009 270);
-    --accent-foreground:    oklch(0.985 0 0);
+    --secondary:            #221f1b;
+    --secondary-foreground: #FAFAF8;
+    --muted:                #1A1916;
+    --accent:               #221f1b;
+    --accent-foreground:    #FAFAF8;
 
     /* Status */
-    --success:              oklch(0.78 0.17 152);
-    --warning:              oklch(0.83 0.16 80);
-    --destructive:          oklch(0.70 0.21 25);
-    --destructive-foreground: oklch(0.985 0 0);
-    --info:                 oklch(0.78 0.14 232);
+    --success:     #7cc785;
+    --destructive: oklch(0.70 0.21 25);
+    --destructive-foreground: #FAFAF8;
 
     /* Lines & focus */
-    --border:        oklch(1 0 0 / 0.08);
-    --border-strong: oklch(1 0 0 / 0.16);
-    --input:         oklch(1 0 0 / 0.10);
-    --ring:          oklch(0.92 0.22 122 / 0.55);
-
-    /* Charts */
-    --chart-1: oklch(0.92 0.22 122);
-    --chart-2: oklch(0.78 0.14 232);
-    --chart-3: oklch(0.78 0.17 152);
-    --chart-4: oklch(0.83 0.16 80);
-    --chart-5: oklch(0.70 0.21 25);
+    --border:       #2a2826;
+    --border-strong: #3a3733;
+    --input:         rgba(255, 255, 255, 0.06);
+    --ring:          rgba(232, 98, 42, 0.4);
 
     /* Radii */
     --radius:     0.625rem;
@@ -64,75 +58,58 @@
     --radius-xl:  0.875rem;
     --radius-2xl: 1.125rem;
 
-    /* Shadows */
-    --shadow-glow: 0 0 0 1px oklch(0.92 0.22 122 / 0.35),
-                   0 8px 24px -4px oklch(0.92 0.22 122 / 0.25);
-
     /* Sidebar (shadcn compat) */
-    --sidebar:                  oklch(0.175 0.008 270);
-    --sidebar-foreground:       oklch(0.985 0 0);
-    --sidebar-primary:          oklch(0.92 0.22 122);
-    --sidebar-primary-foreground: oklch(0.16 0 0);
-    --sidebar-accent:           oklch(0.255 0.009 270);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border:           oklch(1 0 0 / 0.08);
-    --sidebar-ring:             oklch(0.92 0.22 122 / 0.55);
-  }
-
-  /* dark: mirrors :root so Tailwind dark: variants stay consistent */
-  .dark {
-    --background:   oklch(0.135 0.006 270);
-    --surface-1:    oklch(0.175 0.008 270);
-    --surface-2:    oklch(0.215 0.009 270);
-    --card:         oklch(0.175 0.008 270);
-    --card-foreground: oklch(0.985 0 0);
-    --foreground:   oklch(0.985 0 0);
-    --muted-foreground: oklch(0.66 0.012 270);
-    --primary:      oklch(0.92 0.22 122);
-    --primary-foreground: oklch(0.16 0 0);
-    --secondary:    oklch(0.255 0.009 270);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted:        oklch(0.235 0.008 270);
-    --accent:       oklch(0.255 0.009 270);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive:  oklch(0.70 0.21 25);
-    --destructive-foreground: oklch(0.985 0 0);
-    --border:       oklch(1 0 0 / 0.08);
-    --border-strong: oklch(1 0 0 / 0.16);
-    --input:        oklch(1 0 0 / 0.10);
-    --ring:         oklch(0.92 0.22 122 / 0.55);
+    --sidebar:                  #1A1916;
+    --sidebar-foreground:       #FAFAF8;
+    --sidebar-primary:          #E8622A;
+    --sidebar-primary-foreground: #110;
+    --sidebar-accent:           #221f1b;
+    --sidebar-accent-foreground: #FAFAF8;
+    --sidebar-border:           #2a2826;
+    --sidebar-ring:             rgba(232, 98, 42, 0.4);
   }
 
   * {
     @apply border-border;
-    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
   }
+
   body {
-    @apply bg-background text-foreground;
+    background: #111110;
+    color: #FAFAF8;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: 'ss01', 'cv11';
+    font-feature-settings: 'cv11', 'ss01';
+    letter-spacing: -0.005em;
   }
+
   html {
     font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background: rgba(232, 98, 42, 0.3);
+    color: #FAFAF8;
   }
 }
 
 /* ── Utility classes ──────────────────────────────────────── */
 
-/* Section / eyebrow labels — mono uppercase throughout the app */
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   color: var(--muted-foreground);
 }
 
-/* Wrap every numeric value (reps, sets, weights, dates, deltas) */
 .metric {
   font-family: var(--font-mono);
   font-feature-settings: 'tnum', 'zero';
   font-variant-numeric: tabular-nums;
+}
+
+/* iOS safe area support */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

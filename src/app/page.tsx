@@ -1,130 +1,114 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Zap, Mic, ArrowRight } from "lucide-react";
 
 export default async function LandingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (user) redirect("/dashboard");
+  if (user) redirect("/home");
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--background)', color: 'var(--foreground)', overflowX: 'hidden' }}>
+    <main style={{
+      minHeight: "100vh", background: "#111110", color: "#FAFAF8",
+      fontFamily: "var(--font-sans)", WebkitFontSmoothing: "antialiased",
+      overflowX: "hidden",
+    }}>
+      {/* Amber halo */}
+      <div style={{
+        position: "fixed", inset: "0 0 auto 0", height: 480, pointerEvents: "none",
+        background: "radial-gradient(60% 60% at 50% 0%, rgba(232,98,42,0.12) 0%, transparent 70%)",
+        zIndex: 0,
+      }} />
 
-      {/* Volt halo */}
-      <div style={{ position: 'fixed', inset: '0 0 auto 0', height: 480, pointerEvents: 'none', background: 'radial-gradient(60% 60% at 50% 0%, oklch(0.92 0.22 122 / 0.15) 0%, transparent 70%)', zIndex: 0 }}/>
-
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 420, margin: "0 auto", padding: "0 24px" }}>
 
         {/* Nav */}
-        <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 26, height: 26, borderRadius: 6, background: 'var(--primary)', display: 'grid', placeItems: 'center', color: 'var(--primary-foreground)' }}>
-              <Zap size={14} strokeWidth={2.5}/>
-            </div>
-            <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.01em' }}>GymBuddy AI</span>
+        <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "24px 0" }}>
+          <div style={{ display: "inline-flex", alignItems: "baseline", gap: 5 }}>
+            <img src="/word-fit-amber.png" alt="Fit" style={{ height: 16, display: "block" }} />
+            <img src="/word-betta-amber.png" alt="Betta" style={{ height: 15, display: "block" }} />
           </div>
-          <Link href="/auth/login" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none' }}>
+          <Link href="/auth/login" style={{
+            fontFamily: "var(--font-mono)", fontSize: 11, color: "#6B6862",
+            textTransform: "uppercase", letterSpacing: "0.12em", textDecoration: "none",
+          }}>
             Sign in →
           </Link>
         </nav>
 
-        {/* Hero + preview — two col on desktop */}
-        <div className="md:grid md:grid-cols-2 md:gap-16 md:items-center" style={{ paddingTop: 64 }}>
+        {/* Hero */}
+        <div style={{ paddingTop: 48, paddingBottom: 64 }}>
+          <div style={{
+            fontFamily: "var(--font-mono)", fontSize: 10,
+            letterSpacing: "0.16em", textTransform: "uppercase", color: "#E8622A",
+            marginBottom: 12,
+          }}>Cognitive performance</div>
 
-          {/* Left: copy + CTAs */}
-          <div>
-            <div className="eyebrow" style={{ color: 'var(--primary)' }}>Voice-first workout log</div>
-            <h1 style={{ fontSize: 'clamp(52px, 8vw, 72px)', lineHeight: 0.97, fontWeight: 800, letterSpacing: '-0.04em', margin: '16px 0 0' }}>
-              Train.<br/>Talk.<br/><span style={{ color: 'var(--primary)' }}>Tracked.</span>
-            </h1>
-            <p style={{ color: 'var(--muted-foreground)', fontSize: 16, lineHeight: 1.6, marginTop: 20, maxWidth: 380 }}>
-              Speak your set. AI structures every rep, weight, and muscle group — then tells you what to lift next.
-            </p>
+          <h1 style={{
+            fontSize: "clamp(48px, 12vw, 64px)", lineHeight: 0.97,
+            fontWeight: 700, letterSpacing: "-0.04em", margin: "0 0 20px",
+          }}>
+            Know why you feel<br/>
+            <span style={{ color: "#E8622A" }}>the way</span><br/>
+            you feel.
+          </h1>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 36, maxWidth: 340 }}>
-              <Link href="/auth/login?signup=1" style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                height: 48, borderRadius: 12, border: 'none',
-                background: 'var(--primary)', color: 'var(--primary-foreground)',
-                fontFamily: 'inherit', fontSize: 15, fontWeight: 600,
-                textDecoration: 'none', transition: 'box-shadow 120ms',
-              }}>
-                Create your account <ArrowRight size={16}/>
-              </Link>
-              <Link href="/auth/login" style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                height: 48, borderRadius: 12, border: '1px solid var(--border-strong)',
-                background: 'transparent', color: 'var(--muted-foreground)',
-                fontFamily: 'inherit', fontSize: 15, fontWeight: 500,
-                textDecoration: 'none',
-              }}>
-                I already have an account
-              </Link>
-            </div>
-          </div>
+          <p style={{ color: "#aaa69e", fontSize: 15, lineHeight: 1.6, marginBottom: 36, maxWidth: 320 }}>
+            A two-minute morning check-in. One number that explains your day. Patterns that tell you what to change.
+          </p>
 
-          {/* Right: preview card */}
-          <div style={{ marginTop: 48 }} className="md:mt-0">
-            <div style={{ background: 'var(--surface-1)', borderRadius: 20, boxShadow: 'inset 0 0 0 1px var(--border)', padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {/* User message */}
-              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--muted)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                  <Mic size={13}/>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div className="eyebrow" style={{ fontSize: 9 }}>You · 06:42</div>
-                  <div style={{ marginTop: 4, fontSize: 14, lineHeight: 1.55 }}>
-                    &ldquo;Four sets of bench at eighty kilos, eight reps. Then three by twelve rows at twenty-five, finished with a twenty minute run.&rdquo;
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ height: 1, background: 'var(--border)' }}/>
-
-              {/* AI response */}
-              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--primary)', display: 'grid', placeItems: 'center', flexShrink: 0, color: 'var(--primary-foreground)' }}>
-                  <Zap size={14} strokeWidth={2.5}/>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div className="eyebrow" style={{ fontSize: 9, color: 'var(--primary)' }}>Logged · push day</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 8 }}>
-                    {[
-                      ['Bench Press',   '4×8',   '80 kg'],
-                      ['Dumbbell Row',  '3×12',  '25 kg'],
-                      ['Run',           '20 min', ''],
-                    ].map(([name, sr, w]) => (
-                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <span style={{ fontSize: 13, fontWeight: 500 }}>{name}</span>
-                        <span className="metric" style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>
-                          <span style={{ color: 'var(--foreground)' }}>{sr}</span>{w ? ` · ${w}` : ''}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <Link href="/auth/login?signup=1" style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              height: 52, borderRadius: 16,
+              background: "#E8622A", color: "#110",
+              fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700,
+              textDecoration: "none",
+            }}>
+              Create your account →
+            </Link>
+            <Link href="/auth/login" style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              height: 52, borderRadius: 16,
+              border: "1px solid #2a2826",
+              background: "transparent", color: "#aaa69e",
+              fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 500,
+              textDecoration: "none",
+            }}>
+              Sign in
+            </Link>
           </div>
         </div>
 
         {/* Feature trio */}
-        <div className="md:grid md:grid-cols-3" style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 64 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingBottom: 48 }}>
           {[
-            { label: 'Voice',  sub: 'Hands-free logging. Just speak your workout as you finish it.' },
-            { label: 'AI',     sub: 'Auto-parses sets, reps, weight, distance, and muscle groups.' },
-            { label: 'Coach',  sub: 'Analyzes 30 days of history and tells you exactly what to lift next.' },
+            { label: "Check-in", sub: "Two minutes every morning. Sleep, energy, stress, caffeine." },
+            { label: "Score",    sub: "One number from 1–100. Explains your cognitive state for the day." },
+            { label: "Insights", sub: "Weekly patterns. What tanks your focus. What lifts it." },
+            { label: "Move",     sub: "AI picks the right workout based on your last 7 days of data." },
+            { label: "Food",     sub: "Log meals. AI tags each one: boosts focus, brain fog, neutral." },
           ].map((f) => (
-            <div key={f.label} style={{ background: 'var(--surface-1)', boxShadow: 'inset 0 0 0 1px var(--border)', borderRadius: 14, padding: 20 }}>
-              <div className="eyebrow" style={{ color: 'var(--primary)' }}>{f.label}</div>
-              <p style={{ fontSize: 14, color: 'var(--muted-foreground)', marginTop: 8, lineHeight: 1.6 }}>{f.sub}</p>
+            <div key={f.label} style={{
+              background: "#1A1916", border: "1px solid #2a2826",
+              borderRadius: 14, padding: "16px 18px",
+            }}>
+              <div style={{
+                fontFamily: "var(--font-mono)", fontSize: 10,
+                letterSpacing: "0.14em", textTransform: "uppercase", color: "#E8622A",
+                marginBottom: 6,
+              }}>{f.label}</div>
+              <p style={{ fontSize: 13.5, color: "#aaa69e", margin: 0, lineHeight: 1.5 }}>{f.sub}</p>
             </div>
           ))}
         </div>
 
-        <div style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--subtle-foreground)', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '48px 0 32px' }}>
-          Built on Groq · llama-3.3-70b
+        <div style={{
+          textAlign: "center", fontFamily: "var(--font-mono)", fontSize: 10,
+          color: "#3f3d39", textTransform: "uppercase", letterSpacing: "0.12em",
+          paddingBottom: 32,
+        }}>
+          Powered by Groq · Llama 3.3
         </div>
       </div>
     </main>

@@ -1,11 +1,11 @@
 {
-  "name": "GymBuddy AI",
-  "short_name": "GymBuddy",
-  "description": "Log workouts with natural language, structured by AI",
-  "start_url": "/dashboard",
+  "name": "Fit Betta",
+  "short_name": "Fit Betta",
+  "description": "Know why you feel the way you feel.",
+  "start_url": "/home",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#111110",
+  "theme_color": "#111110",
   "orientation": "portrait",
   "icons": [
     {

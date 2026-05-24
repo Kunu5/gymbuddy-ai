@@ -1,21 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { parseWorkout } from "@/lib/ai";
+import { parseMeal } from "@/lib/ai";
 
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const since = new Date();
+  since.setDate(since.getDate() - 2);
+
   const { data, error } = await supabase
-    .from("workout_sessions")
+    .from("meals")
     .select("*")
     .eq("user_id", user.id)
-    .order("date", { ascending: false })
+    .gte("logged_at", since.toISOString())
+    .order("logged_at", { ascending: false })
     .limit(20);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ sessions: data });
+  return NextResponse.json({ meals: data });
 }
 
 export async function POST(request: NextRequest) {
@@ -23,29 +27,23 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { input } = await request.json();
-  if (!input || typeof input !== "string" || !input.trim()) {
-    return NextResponse.json({ error: "Input is required" }, { status: 400 });
-  }
+  const { raw_input } = await request.json();
+  if (!raw_input?.trim()) return NextResponse.json({ error: "raw_input is required" }, { status: 400 });
 
-  const today = new Date().toISOString().split("T")[0];
-  const parsed = await parseWorkout(input.trim(), today);
+  const parsed = await parseMeal(raw_input);
 
   const { data, error } = await supabase
-    .from("workout_sessions")
+    .from("meals")
     .insert({
       user_id: user.id,
-      raw_input: input.trim(),
-      title: parsed.title,
-      date: parsed.date,
-      duration_minutes: parsed.durationMinutes,
-      exercises: parsed.exercises,
-      muscle_groups: parsed.muscleGroups,
-      notes: parsed.notes,
+      raw_input,
+      items: parsed.items,
+      ai_tag: parsed.ai_tag,
+      ai_tag_kind: parsed.ai_tag_kind,
     })
     .select()
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ session: data });
+  return NextResponse.json({ meal: data });
 }
