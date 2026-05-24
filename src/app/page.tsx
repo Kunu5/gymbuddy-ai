@@ -28,12 +28,25 @@ export default async function LandingPage() {
             <img src="/word-fit-amber.png" alt="Fit" style={{ height: 16, display: "block" }} />
             <img src="/word-betta-amber.png" alt="Betta" style={{ height: 15, display: "block" }} />
           </div>
-          <Link href="/auth/login" style={{
-            fontFamily: "var(--font-mono)", fontSize: 11, color: "#6B6862",
-            textTransform: "uppercase", letterSpacing: "0.12em", textDecoration: "none",
-          }}>
-            Sign in →
-          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              padding: "4px 9px",
+              background: "rgba(232,98,42,0.12)",
+              border: "1px solid rgba(232,98,42,0.35)",
+              borderRadius: 7,
+              fontFamily: "var(--font-mono)", fontSize: 9,
+              fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" as const,
+              color: "#E8622A",
+            }}>
+              Beta
+            </div>
+            <Link href="/auth/login" style={{
+              fontFamily: "var(--font-mono)", fontSize: 11, color: "#6B6862",
+              textTransform: "uppercase", letterSpacing: "0.12em", textDecoration: "none",
+            }}>
+              Sign in →
+            </Link>
+          </div>
         </nav>
 
         {/* Hero */}
