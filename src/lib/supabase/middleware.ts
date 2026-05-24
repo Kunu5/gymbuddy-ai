@@ -34,8 +34,10 @@ export async function updateSession(request: NextRequest) {
   const isResetRoute = pathname.startsWith("/auth/reset-password");
   const isCallbackRoute = pathname.startsWith("/auth/callback");
   const isPublicRoute = pathname === "/";
+  const isApiRoute = pathname.startsWith("/api");
 
-  if (!user && !isAuthRoute && !isPublicRoute) {
+  // API routes handle their own auth (return 401) — don't redirect them to login
+  if (!user && !isAuthRoute && !isPublicRoute && !isApiRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
