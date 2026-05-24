@@ -32,6 +32,7 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthRoute = pathname.startsWith("/auth");
   const isResetRoute = pathname.startsWith("/auth/reset-password");
+  const isCallbackRoute = pathname.startsWith("/auth/callback");
   const isPublicRoute = pathname === "/";
 
   if (!user && !isAuthRoute && !isPublicRoute) {
@@ -40,8 +41,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Allow reset-password even when logged in (Supabase logs in on recovery link click)
-  if (user && isAuthRoute && !isResetRoute) {
+  // Allow reset-password and callback even when logged in
+  if (user && isAuthRoute && !isResetRoute && !isCallbackRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/home";
     return NextResponse.redirect(url);
